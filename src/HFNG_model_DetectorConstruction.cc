@@ -171,32 +171,6 @@ G4VPhysicalVolume* HFNG_model_DetectorConstruction::Construct()
     new G4Box("Outer Block",        // Its name
               2*m, 33*cm, 2*m);    // Its size
 
-  // Test a triangular prism construction.
-  //
-  // Note: Two vertices are collapsed into one vertex for each face
-  // to create the triangular top and bottom faces.
-  //
-  // Vertices' coordinates are indicated for the xy-plane of the
-  // respective face they lie in.
-  G4ThreeVector pos_prism = G4ThreeVector();
-
-  G4double half_height = 2.5*m;
-
-  std::vector<G4TwoVector> vertices;
-
-  vertices.push_back(G4TwoVector(-3*cm, -3*cm));    // Bottom (-z) face
-  vertices.push_back(G4TwoVector(-3*cm,  3*cm));
-  vertices.push_back(G4TwoVector(5.2*cm, 0));
-  vertices.push_back(G4TwoVector(5.2*cm, 0));
-  vertices.push_back(G4TwoVector(-3*cm, -3*cm));     // Top (+z) face
-  vertices.push_back(G4TwoVector(-3*cm,  3*cm));
-  vertices.push_back(G4TwoVector(5.2*cm, 0));
-  vertices.push_back(G4TwoVector(5.2*cm, 0));
-
-  G4GenericTrap* tri_prism =
-    new G4GenericTrap("Triangular Prism",     // Its name
-                      half_height,            // Half the height
-                      vertices);              // Vertices
 
   // Define the shrould subtraction solids via iterative subtraction operations.
   G4SubtractionSolid* shrould_1 =
@@ -228,19 +202,12 @@ G4VPhysicalVolume* HFNG_model_DetectorConstruction::Construct()
                            pos_outer_block_1);    // Position of outer block 1
 
 
-  G4SubtractionSolid* shrould_5_0 =
+  G4SubtractionSolid* shrould_5 =
     new G4SubtractionSolid("Shrould 5",           // Name of the 5th shrould
                            shrould_4,             // 4rd shrould
                            outer_block,           // Outer block 2
                            0,                     // No rotation of outer block 2
                            pos_outer_block_2);    // Position of outer block 2
-
-  G4SubtractionSolid* shrould_5 =
-    new G4SubtractionSolid("Shrould Test",        // Name of the test shrould
-                           main_cylinder,         // Main cylinder
-                           tri_prism,             // Triangular prism
-                           0,                     // No rotation of prism
-                           pos_prism);            // Position of prism
 
   G4LogicalVolume* logical_shrould =
     new G4LogicalVolume(shrould_5,            // Its solid volume
