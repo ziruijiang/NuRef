@@ -101,7 +101,7 @@ G4VPhysicalVolume* HFNG_model_DetectorConstruction::Construct()
                       logicWorld,            //its logical volume
                       "World",               //its name
                       0,                     //its mother  volume
-                      false,                 //no boolean operation
+                      false,                 //no Boolean operation
                       0,                     //copy number
                       checkOverlaps);        //overlaps checking
                      
@@ -122,7 +122,7 @@ G4VPhysicalVolume* HFNG_model_DetectorConstruction::Construct()
                     logicEnv,                //its logical volume
                     "Envelope",              //its name
                     logicWorld,              //its mother  volume
-                    false,                   //no boolean operation
+                    false,                   //no Boolean operation
                     0,                       //copy number
                     checkOverlaps);          //overlaps checking
  
@@ -306,6 +306,11 @@ G4VPhysicalVolume* HFNG_model_DetectorConstruction::Construct()
 
   // Triangular prism shape (uses general trapezoid constructor)
 
+  // This example shape is not very useful for this project because
+  // Boolean operations do not support it, but it is included as an
+  // example of a more complex solid if the need arises in future
+  // projects.
+
   // Note: Two vertices are collapsed into one vertex for each face
   // to create the triangular top and bottom faces.
   //
@@ -333,20 +338,40 @@ G4VPhysicalVolume* HFNG_model_DetectorConstruction::Construct()
                       half_height,            // Half the height
                       vertices);              // Vertices
 
-  // Perform an example of a boolean subtraction operation of the cone from
-  // the box with multiple rotations and a translation operation.
-  G4RotationMatrix* rotate_object = new G4RotationMatrix();                  // Define the rotation matrix
-  rotate_object->rotateY(0.25*pi);         // Perform the rotation operations
-  rotate_object->rotateZ(0.25*pi);
-  
-  G4ThreeVector translate_object(0, 0, 0.3*cm);               // Define the translation vector
+  // Parallelepiped shape (this implementation mimics two triangular prisms
+  // placed back-to-back)
+  G4double half_x_dim = 0.15*cm;
+  G4double half_y_dim = 0.10*cm;
+  G4double half_z_dim = 1*cm;
+  G4double alpha = pi/4;
+  G4double theta = 0;
+  G4double phi = 0;
 
-  // G4Transform3D transform(rotate_object, translate_object);   // Define the overall transformation
+  G4Para* parallelepiped =
+    new G4Para("Parallelepiped",              // Name
+               half_x_dim,                    // Half of intended length
+               half_y_dim,                    // Half of intended width
+               half_z_dim,                    // Half of intended height
+               alpha,                         // Clockwise twist of yx-planes
+               theta,                         // Polar angle between yx-planes
+               phi);                          // Azimuthal angle between yx-planes
+
+  // Perform an example of a Boolean subtraction operation of the parallelepiped from
+  // the box with multiple rotations and a translation operation. The rotation and
+  // translation order is irrelevant.  
+  G4RotationMatrix* rotate_object = new G4RotationMatrix();   // Define the rotation matrix
+  rotate_object->rotateY(pi/8);         // Perform the rotation operations
+  rotate_object->rotateX(pi/2);         // around the specified axes using
+                                        // the right-hand rule for each axis.
+                                        // Rotations are performed in backward
+                                        // order: X and then Y in this case.
+  
+  G4ThreeVector translate_object(0.5*cm, 0, 0);      // Define the translation vector
 
   G4SubtractionSolid* cut_box =
     new G4SubtractionSolid("Cut Box",           // Name
                            box,                 // Box
-                           cone,                // Cone
+                           parallelepiped,      // Parallelepiped
                            rotate_object,       // Rotation
                            translate_object);   // Translation
 
