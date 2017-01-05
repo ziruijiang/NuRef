@@ -271,13 +271,15 @@ G4VPhysicalVolume* HFNG_model_DetectorConstruction::Construct()
 								   // correctly. Epoxy's elemental composition must be defined from scratch
 								   // for complete accuracy.
 
-	absorber->AddMaterial(epoxy_resin,                     // Name
+	absorber->AddMaterial(epoxy_hardener,                     // Name
 		fract_mass_epoxy_hardener);         // Mass fraction
 
 	G4Material* test1 =
 		new G4Material("test1",           // Name
 			dens_comp,             // Density
 			4);                    // Number of components
+	test1->AddMaterial(steel,                // Name
+		33.3 * perCent);
 
 	test1->AddMaterial(boric_acid,                // Name
 		33.3 * perCent);    // Mass fraction
@@ -285,13 +287,38 @@ G4VPhysicalVolume* HFNG_model_DetectorConstruction::Construct()
 	test1->AddMaterial(epoxy_resin,                     // Name
 		20.6 * perCent);         // Mass fraction
 
-										 // NOTE: The epoxy material NEEDS to be redefined. Polyethylene is
-										 // chosen as a placeholder below just to make the overall code compile
-										 // correctly. Epoxy's elemental composition must be defined from scratch
-										 // for complete accuracy.
+	test1->AddMaterial(epoxy_hardener,                     // Name
+		12.8 * perCent);         // Mass fraction
 
-	absorber->AddMaterial(epoxy_resin,                     // Name
-		fract_mass_epoxy_hardener);         // Mass fraction
+	G4Material* test2 =
+		new G4Material("test2",           // Name
+			dens_comp,             // Density
+			3);                    // Number of components
+	
+	test2->AddMaterial(boric_acid,                // Name
+		25.0 * perCent);    // Mass fraction
+
+	test2->AddMaterial(epoxy_resin,                     // Name
+		45.8 * perCent);         // Mass fraction
+
+	test2->AddMaterial(epoxy_hardener,                     // Name
+		29.2 * perCent);         // Mass fraction
+
+	G4Material* test3 =
+		new G4Material("test3",           // Name
+			dens_comp,             // Density
+			4);                    // Number of components
+	test3->AddMaterial(steel,                // Name
+		33.0 * perCent);
+
+	test3->AddMaterial(boric_acid,                // Name
+		17.0 * perCent);    // Mass fraction
+
+	test3->AddMaterial(epoxy_resin,                     // Name
+		30.6 * perCent);         // Mass fraction
+
+	test3->AddMaterial(epoxy_hardener,                     // Name
+		19.4 * perCent);         // Mass fraction
 
 								   // Place SOLID VOLUME code for item of interest here.
 								   //
