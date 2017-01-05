@@ -136,9 +136,9 @@ G4VPhysicalVolume* HFNG_model_DetectorConstruction::Construct()
 								 // Defining elements and compounds using the internal Geant4 database
 	G4Material* aluminum = nist->FindOrBuildMaterial("G4_Al");
 	G4Material* titanium = nist->FindOrBuildMaterial("G4_Ti");
-	G4Material* bisphenol_A_diglycidyl_ether = nist->FindOrBuildMaterial("G4_BISPHENOL_A_DIGLYCIDYL_ETHER");
 	G4Material* calcium_oxide = nist->FindOrBuildMaterial("G4_CALCIUM_OXIDE");
-	G4Material* isophoronediamine = nist->FindOrBuildMaterial("G4_ISOPHORONEDIAMINE");
+	G4Material* iron = nist->FindOrBuildMaterial("G4_FE");
+	G4Material* chromium = nist->FindOrBuildMaterial("G4_CR");
 
 	// Defining an element using its isotopic composition
 	G4Isotope* boron_10 =
@@ -179,6 +179,18 @@ G4VPhysicalVolume* HFNG_model_DetectorConstruction::Construct()
 			8,                      // Atomic number
 			15.9994*g / mole);        // Molar mass
 
+	G4Element* nitrogen =
+		new G4Element("Nitrogen",
+			"N",
+			7,
+			14.007*g / mole);
+	G4Element* Carbon =
+		new G4Element("Carbon",
+			"C",
+			6,
+			12.0107*g / mole);
+	
+
 									  // Defining a compound using its molecular stoichiometry
 	G4Material* boric_acid =
 		new G4Material("Boric Acid",          // Name
@@ -196,20 +208,54 @@ G4VPhysicalVolume* HFNG_model_DetectorConstruction::Construct()
 
 						 // Defining a mixture using its components
 						 // The composite sample with an arbitrary composition is chosen here.
+	
+	G4Material* epoxy_resin =
+		new G4Material("Epoxy Resin",          // Name
+			1.1628*g / cm3,            // Density
+			3);
+	epoxy_resin->AddElement(carbon,
+		21);
+	epoxy_resin->AddElement(hydrogen,
+		24);
+	epoxy_resin->AddElement(oxygen,
+		4);
+
+	G4Material* epoxy_hardener =
+		new G4Material("Epoxy Hardener",          // Name
+			0.922*g / cm3,            // Density
+			3);
+	epoxy_resin->AddElement(carbon,
+		10);
+	epoxy_resin->AddElement(hydrogen,
+		22);
+	epoxy_resin->AddElement(nitrogen,
+		2);
+	
 	G4double dens_comp = 10 * g / cm3;
+	G4double dens_steel = 7.9 * g / cm3;
 
 	G4double fract_mass_boric_acid = 50 * perCent;
-	G4double fract_mass_steel = 0 * perCent;
+	G4double fract_mass_iron = 89.5 * perCent;
 	G4double fract_mass_epoxy_resin = 30.6 * perCent;
 	G4double fract_mass_epoxy_hardener = 19.4 * perCent;
+	G4double fract_mass_chromium = 10.5 * perCent;
+
+	G4Material* steel =
+		new G4Material("Absorber",           // Name
+			dens_steel,             // Density
+			2);
+	steel->AddMaterial(iron,                // Name
+		fract_mass_iron);
+	steel->AddMaterial(chromium,                // Name
+		fract_mass_chromium);
 
 
-	G4Material* composite =
-		new G4Material("Composite",           // Name
+	G4Material* absorber =
+		new G4Material("Absorber",           // Name
 			dens_comp,             // Density
 			3);                    // Number of components
 
-	composite->AddMaterial(boric_acid,                // Name
+	absorber->AddMaterial(boric_acid,                // Name
 		fract_mass_boric_acid);    // Mass fraction
 
 								   // NOTE: The steel material NEEDS to be redefined. Iron is chosen as a
@@ -217,7 +263,7 @@ G4VPhysicalVolume* HFNG_model_DetectorConstruction::Construct()
 								   // Steel's elemental composition must be defined from scratch for complete
 								   // accuracy.
 
-	composite->AddMaterial(bisphenol_A_diglycidyl_ether,                     // Name
+	absorber->AddMaterial(epoxy_resin,                     // Name
 		fract_mass_epoxy_resin);         // Mass fraction
 
 								   // NOTE: The epoxy material NEEDS to be redefined. Polyethylene is
@@ -225,7 +271,26 @@ G4VPhysicalVolume* HFNG_model_DetectorConstruction::Construct()
 								   // correctly. Epoxy's elemental composition must be defined from scratch
 								   // for complete accuracy.
 
-	composite->AddMaterial(isophoronediamine,                     // Name
+	absorber->AddMaterial(epoxy_resin,                     // Name
+		fract_mass_epoxy_hardener);         // Mass fraction
+
+	G4Material* test1 =
+		new G4Material("test1",           // Name
+			dens_comp,             // Density
+			4);                    // Number of components
+
+	test1->AddMaterial(boric_acid,                // Name
+		33.3 * perCent);    // Mass fraction
+
+	test1->AddMaterial(epoxy_resin,                     // Name
+		20.6 * perCent);         // Mass fraction
+
+										 // NOTE: The epoxy material NEEDS to be redefined. Polyethylene is
+										 // chosen as a placeholder below just to make the overall code compile
+										 // correctly. Epoxy's elemental composition must be defined from scratch
+										 // for complete accuracy.
+
+	absorber->AddMaterial(epoxy_resin,                     // Name
 		fract_mass_epoxy_hardener);         // Mass fraction
 
 								   // Place SOLID VOLUME code for item of interest here.
@@ -253,7 +318,7 @@ G4VPhysicalVolume* HFNG_model_DetectorConstruction::Construct()
 								 //
 	G4LogicalVolume* logical_object =
 		new G4LogicalVolume(Box,                // Its solid volume
-			composite,               // Its material
+			absorber,               // Its material
 			"Logical Object");      // Its name
 
 									// Place PHYSICAL VOLUME code for item of interest here.
