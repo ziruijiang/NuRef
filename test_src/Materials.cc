@@ -139,6 +139,7 @@ G4VPhysicalVolume* HFNG_model_DetectorConstruction::Construct()
 	G4Material* calcium_oxide = nist->FindOrBuildMaterial("G4_CALCIUM_OXIDE");
 	G4Material* iron = nist->FindOrBuildMaterial("G4_FE");
 	G4Material* chromium = nist->FindOrBuildMaterial("G4_CR");
+	G4Material* gold = nist->FindOrBuildMaterial("G4_AU")
 
 	// Defining an element using its isotopic composition
 	G4Isotope* boron_10 =
@@ -274,6 +275,13 @@ G4VPhysicalVolume* HFNG_model_DetectorConstruction::Construct()
 	absorber->AddMaterial(epoxy_hardener,                     // Name
 		fract_mass_epoxy_hardener);         // Mass fraction
 
+	G4Material* foil =
+		new G4Material("foil",           // Name
+			dens_comp,             // Density
+			4);
+	foil->AddMaterial(gold,
+		100 * perCent)
+
 	G4Material* test1 =
 		new G4Material("test1",           // Name
 			dens_comp,             // Density
@@ -339,29 +347,40 @@ G4VPhysicalVolume* HFNG_model_DetectorConstruction::Construct()
 			x_half_dimension,       // Half the intended x-dimension
 			y_half_dimension,       // Half the intended y-dimension
 			z_half_dimension);      // Half the intended z-dimension
-
+	
 	
 								 // Place LOGICAL VOLUME code for item of interest here.
 								 //
-	G4LogicalVolume* logical_object =
+	G4LogicalVolume* logical_object_box =
 		new G4LogicalVolume(Box,                // Its solid volume
 			absorber,               // Its material
-			"Logical Object");      // Its name
+			"Logical Object Box");      // Its name
 
 									// Place PHYSICAL VOLUME code for item of interest here.
 									//
 	new G4PVPlacement(0,
 		G4ThreeVector(),
-		logical_object,
+		logical_object_box,
 		"Physical Object",
 		logicEnv,
 		true,
 		0,
 		checkOverlaps);
 
+	G4Box* Foil =
+		new G4Box("Foil",                  // Its name
+			3.2*cm,       // Half the intended x-dimension
+			3.2*cm,       // Half the intended y-dimension
+			0.00005*cm);      // Half the intended z-dimension
+
+	G4LogicalVolume* logical_object =
+		new G4LogicalVolume(Foil,
+			foil,
+			"Logical Object Foil")
+
 	// Set the logical_object as the scoring volume.
 	//
-	fScoringVolume = logical_object;
+	fScoringVolume = logical_object_box;
 
 	//
 	// Always return the physical World
