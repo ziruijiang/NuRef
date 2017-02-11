@@ -389,7 +389,7 @@ G4VPhysicalVolume* HFNG_model_DetectorConstruction::Construct()
                     logical_object,
                     "Physical Object",
                     logicEnv,
-                    true,
+                    true, 
                     0,
                     checkOverlaps);
 
